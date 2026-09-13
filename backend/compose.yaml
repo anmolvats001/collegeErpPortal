@@ -1,0 +1,112 @@
+services:
+  mysql-core:
+    image: mysql:8.0
+    container_name: mysql-core
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: coredb
+    ports:
+      - "4406:3306"
+    volumes:
+      - mysql_core_data:/var/lib/mysql
+
+  mysql-class:
+    image: mysql:8.0
+    container_name: mysql-class
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: classdb
+    ports:
+      - "4407:3306"
+    volumes:
+      - mysql_class_data:/var/lib/mysql
+
+  mysql-admission:
+    image: mysql:8.0
+    container_name: mysql-admission
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: admissiondb
+    ports:
+      - "4408:3306"
+    volumes:
+      - mysql_admission_data:/var/lib/mysql
+
+  mysql-fee:
+    image: mysql:8.0
+    container_name: mysql-fee
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: feedb
+    ports:
+      - "4409:3306"
+    volumes:
+      - mysql_fee_data:/var/lib/mysql
+
+  mysql-cloud:
+    image: mysql:8.0
+    container_name: mysql-cloud
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: clouddb
+    ports:
+      - "4410:3306"
+    volumes:
+      - mysql_cloud_data:/var/lib/mysql
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    container_name: zookeeper
+    restart: unless-stopped
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+    volumes:
+      - zookeeper_data:/var/lib/zookeeper/data
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: kafka
+    restart: unless-stopped
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+
+  redis:
+    image: redis:7.2
+    container_name: college-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+
+volumes:
+  mysql_core_data:
+  mysql_class_data:
+  mysql_admission_data:
+  mysql_fee_data:
+  mysql_cloud_data:
+  kafka_data:
+  zookeeper_data:
+  redis_data:

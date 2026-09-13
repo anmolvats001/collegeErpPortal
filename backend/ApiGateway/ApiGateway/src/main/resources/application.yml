@@ -1,0 +1,77 @@
+server:
+  port: 8080
+
+jwt:
+  secret: mySuperSecretKeyForJwtAuthentication123456789
+
+spring:
+  application:
+    name: api-gateway
+
+  cloud:
+    gateway:
+      server:
+        webmvc:
+          routes:
+            # =========================
+            # CORE SERVICE
+            # =========================
+            - id: core-service
+              uri: http://localhost:8082
+              predicates:
+                - Path=/api/v1/core/**
+
+            # =========================
+            # CLASS SERVICE
+            # =========================
+            - id: class-service
+              uri: http://localhost:8083
+              predicates:
+                - Path=/api/v1/class/**
+
+            # =========================
+            # ADMISSION SERVICE
+            # =========================
+            - id: admission-service
+              uri: http://localhost:8084
+              predicates:
+                - Path=/api/v1/admission/**
+
+            # =========================
+            # FEE SERVICE
+            # =========================
+            - id: fee-service
+              uri: http://localhost:8085
+              predicates:
+                - Path=/api/v1/fee/**
+
+            # =========================
+            # NOTIFICATION SERVICE
+            # =========================
+            - id: notification-service
+              uri: http://localhost:8086
+              predicates:
+                - Path=/api/notifications/**
+
+            # =========================
+            # FILE SERVICE (Cloudinary)
+            # =========================
+            - id: file-service
+              uri: http://localhost:8087
+              predicates:
+                - Path=/api/files/**
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    org.springframework.security: DEBUG
+    org.springframework.cloud.gateway: DEBUG

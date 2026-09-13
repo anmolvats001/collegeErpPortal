@@ -1,0 +1,17 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-[#f4f7fb] text-slate-800 font-sans antialiased min-h-screen;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply text-slate-900 font-bold tracking-tight;
+  }
+}
+
+/* Custom college formal utilities */
+.college-header-gradient {
+  background: linear-gradient(135deg, #0f2942 0%, #173b5c 100%);
+}

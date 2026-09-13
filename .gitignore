@@ -1,0 +1,61 @@
+# Root .gitignore for College ERP Portal (Monorepo)
+
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Production / Build Output
+dist/
+dist-ssr/
+build/
+target/
+**/target/
+*.class
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Test / Runtime Temp Files
+jwt.txt
+*.local
+.system_generated/
+
+# Environment Variables & Secrets
+.env
+.env.local
+.env.*.local
+*.env.properties
+!**/.env.example
+
+# IDE & Editor files
+.idea/
+**/.idea/
+.vscode/*
+!**/.vscode/extensions.json
+*.iml
+*.iws
+*.ipr
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.DS_Store
+Thumbs.db
+
+# Backup folders
+.git_backup/

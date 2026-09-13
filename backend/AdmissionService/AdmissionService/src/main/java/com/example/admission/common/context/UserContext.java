@@ -1,0 +1,1 @@
+package com.example.admission.common.context; public final class UserContext { private static final ThreadLocal<String> ID=new ThreadLocal<>(); private UserContext(){} public static String getUserId(){return ID.get();} public static void setUserId(String id){ID.set(id);} public static void clear(){ID.remove();} }
