@@ -33,10 +33,10 @@ export const UserProfilePage = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editLoading, setEditLoading] = useState(false);
   const [editForm, setEditForm] = useState({
-    userName: MOCK_PROFILE.userName,
-    phoneNumber: String(MOCK_PROFILE.phoneNumber),
-    alternatePhoneNumber: String(MOCK_PROFILE.alternatePhoneNumber),
-    bloodGroup: MOCK_PROFILE.bloodGroup,
+    userName: IS_PREVIEW_MODE ? MOCK_PROFILE.userName : '',
+    phoneNumber: IS_PREVIEW_MODE ? String(MOCK_PROFILE.phoneNumber) : '',
+    alternatePhoneNumber: IS_PREVIEW_MODE ? String(MOCK_PROFILE.alternatePhoneNumber) : '',
+    bloodGroup: IS_PREVIEW_MODE ? MOCK_PROFILE.bloodGroup : '',
     image: '',
   });
 

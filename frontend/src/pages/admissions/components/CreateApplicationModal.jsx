@@ -3,7 +3,7 @@ import { Modal } from '../../../components/common/Modal';
 import { Button } from '../../../components/common/Button';
 import { courseService } from '../../../services/courseService';
 import { branchService } from '../../../services/branchService';
-import { MOCK_COURSES, MOCK_BRANCHES } from '../../../utils/mockData';
+import { IS_PREVIEW_MODE, MOCK_COURSES, MOCK_BRANCHES } from '../../../utils/mockData';
 import {
   User,
   Mail,
@@ -53,16 +53,16 @@ export const CreateApplicationModal = ({
   const loadAcademicData = async () => {
     try {
       const courseList = await courseService.getCoursesOfMyCollege();
-      setCourses(Array.isArray(courseList) && courseList.length ? courseList : MOCK_COURSES);
+      setCourses(Array.isArray(courseList) && courseList.length ? courseList : (IS_PREVIEW_MODE ? MOCK_COURSES : []));
     } catch {
-      setCourses(MOCK_COURSES);
+      setCourses(IS_PREVIEW_MODE ? MOCK_COURSES : []);
     }
 
     try {
       const branchList = await branchService.getBranchesOfMyCollege();
-      setBranches(Array.isArray(branchList) && branchList.length ? branchList : MOCK_BRANCHES);
+      setBranches(Array.isArray(branchList) && branchList.length ? branchList : (IS_PREVIEW_MODE ? MOCK_BRANCHES : []));
     } catch {
-      setBranches(MOCK_BRANCHES);
+      setBranches(IS_PREVIEW_MODE ? MOCK_BRANCHES : []);
     }
   };
 

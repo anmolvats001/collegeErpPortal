@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Modal } from '../../../components/common/Modal';
 import { Button } from '../../../components/common/Button';
-import { MOCK_COURSES, MOCK_BRANCHES } from '../../../utils/mockData';
+import { courseService } from '../../../services/courseService';
+import { branchService } from '../../../services/branchService';
+import { IS_PREVIEW_MODE, MOCK_COURSES, MOCK_BRANCHES } from '../../../utils/mockData';
 
 export const CreateFeeAccountModal = ({
   isOpen,
@@ -10,23 +12,56 @@ export const CreateFeeAccountModal = ({
   isSubmitting,
   existingStudents = [],
 }) => {
+  const [courses, setCourses] = useState(() => (IS_PREVIEW_MODE ? MOCK_COURSES : []));
+  const [branches, setBranches] = useState(() => (IS_PREVIEW_MODE ? MOCK_BRANCHES : []));
+
   const [formData, setFormData] = useState({
     studentUserId: '',
     studentName: '',
-    courseId: MOCK_COURSES[0]?.courseId || '',
-    courseName: MOCK_COURSES[0]?.courseName || '',
-    branchId: MOCK_BRANCHES?.[0]?.branchId || '',
-    branchName: MOCK_BRANCHES?.[0]?.branchName || '',
+    courseId: '',
+    courseName: '',
+    branchId: '',
+    branchName: '',
     totalFee: '',
   });
 
   const [errors, setErrors] = useState({});
 
+  useEffect(() => {
+    if (isOpen) {
+      courseService
+        .getCoursesOfMyCollege()
+        .then((list) => {
+          if (Array.isArray(list) && list.length > 0) {
+            setCourses(list);
+          } else if (IS_PREVIEW_MODE) {
+            setCourses(MOCK_COURSES);
+          }
+        })
+        .catch(() => {
+          if (IS_PREVIEW_MODE) setCourses(MOCK_COURSES);
+        });
+
+      branchService
+        .getBranchesOfMyCollege()
+        .then((list) => {
+          if (Array.isArray(list) && list.length > 0) {
+            setBranches(list);
+          } else if (IS_PREVIEW_MODE) {
+            setBranches(MOCK_BRANCHES);
+          }
+        })
+        .catch(() => {
+          if (IS_PREVIEW_MODE) setBranches(MOCK_BRANCHES);
+        });
+    }
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   const handleCourseChange = (e) => {
     const cid = e.target.value;
-    const course = MOCK_COURSES.find((c) => c.courseId === cid);
+    const course = courses.find((c) => (c.courseId || c.id) === cid);
     setFormData((prev) => ({
       ...prev,
       courseId: cid,
@@ -36,7 +71,7 @@ export const CreateFeeAccountModal = ({
 
   const handleBranchChange = (e) => {
     const bid = e.target.value;
-    const branch = MOCK_BRANCHES?.find((b) => b.branchId === bid);
+    const branch = branches?.find((b) => (b.branchId || b.id) === bid);
     setFormData((prev) => ({
       ...prev,
       branchId: bid,
@@ -79,10 +114,10 @@ export const CreateFeeAccountModal = ({
     setFormData({
       studentUserId: '',
       studentName: '',
-      courseId: MOCK_COURSES[0]?.courseId || '',
-      courseName: MOCK_COURSES[0]?.courseName || '',
-      branchId: MOCK_BRANCHES?.[0]?.branchId || '',
-      branchName: MOCK_BRANCHES?.[0]?.branchName || '',
+      courseId: '',
+      courseName: '',
+      branchId: '',
+      branchName: '',
       totalFee: '',
     });
     setErrors({});
@@ -158,9 +193,9 @@ export const CreateFeeAccountModal = ({
             className="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-blue-100 focus:border-blue-500 bg-white"
           >
             <option value="">-- Select Course --</option>
-            {MOCK_COURSES.map((c) => (
-              <option key={c.courseId} value={c.courseId}>
-                {c.courseName} ({c.courseCode})
+            {courses.map((c) => (
+              <option key={c.courseId || c.id} value={c.courseId || c.id}>
+                {c.courseName} {c.courseCode ? `(${c.courseCode})` : ''}
               </option>
             ))}
           </select>
@@ -177,8 +212,8 @@ export const CreateFeeAccountModal = ({
             className="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-blue-100 focus:border-blue-500 bg-white"
           >
             <option value="">-- Select Branch --</option>
-            {MOCK_BRANCHES?.map((b) => (
-              <option key={b.branchId} value={b.branchId}>
+            {branches?.map((b) => (
+              <option key={b.branchId || b.id} value={b.branchId || b.id}>
                 {b.branchName}
               </option>
             ))}

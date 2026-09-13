@@ -16,12 +16,12 @@ export const TenantProvider = ({ children }) => {
   const [activeCollegeCode, setActiveCollegeCode] = useState(() =>
     localStorage.getItem('erp_college_code') || (IS_PREVIEW_MODE ? MOCK_COLLEGE.code : '')
   );
-  const [availableColleges, setAvailableColleges] = useState(MOCK_COLLEGES);
+  const [availableColleges, setAvailableColleges] = useState(() => (IS_PREVIEW_MODE ? MOCK_COLLEGES : []));
   const [isCollegesLoading, setIsCollegesLoading] = useState(false);
 
   const [activeModules, setActiveModules] = useState(() => {
     const initialId = localStorage.getItem(STORAGE_KEYS.COLLEGE_ID) || (IS_PREVIEW_MODE ? MOCK_COLLEGE.id : '');
-    return MOCK_COLLEGE_MODULES[initialId] || ['CORE', 'CLASS', 'ATTENDANCE', 'ADMISSION', 'FEE', 'NOTIFICATION', 'FILES'];
+    return (IS_PREVIEW_MODE && MOCK_COLLEGE_MODULES[initialId]) || ['CORE', 'CLASS', 'ATTENDANCE', 'ADMISSION', 'FEE', 'NOTIFICATION', 'FILES'];
   });
   const [isModulesLoading, setIsModulesLoading] = useState(false);
 
@@ -32,15 +32,18 @@ export const TenantProvider = ({ children }) => {
       const resp = await collegeService.getAllColleges(0, 100);
       const list = resp?.colleges?.content || resp?.content || (Array.isArray(resp) ? resp : null);
       if (Array.isArray(list) && list.length > 0) {
-        // Merge real colleges with mock ones so user always has access to both
-        const existingIds = new Set(list.map((c) => c.collegeId || c.id));
-        const combined = [...list, ...MOCK_COLLEGES.filter((m) => !existingIds.has(m.collegeId))];
-        setAvailableColleges(combined);
+        if (IS_PREVIEW_MODE) {
+          const existingIds = new Set(list.map((c) => c.collegeId || c.id));
+          const combined = [...list, ...MOCK_COLLEGES.filter((m) => !existingIds.has(m.collegeId))];
+          setAvailableColleges(combined);
+        } else {
+          setAvailableColleges(list);
+        }
       } else {
-        setAvailableColleges(MOCK_COLLEGES);
+        setAvailableColleges(IS_PREVIEW_MODE ? MOCK_COLLEGES : []);
       }
     } catch {
-      setAvailableColleges(MOCK_COLLEGES);
+      setAvailableColleges(IS_PREVIEW_MODE ? MOCK_COLLEGES : []);
     } finally {
       setIsCollegesLoading(false);
     }
@@ -57,14 +60,14 @@ export const TenantProvider = ({ children }) => {
       const resp = await moduleService.getModulesOfCollege(collegeId);
       if (resp?.modules && Array.isArray(resp.modules) && resp.modules.length > 0) {
         setActiveModules(resp.modules.map((m) => m.moduleCode));
-      } else if (MOCK_COLLEGE_MODULES[collegeId]) {
+      } else if (IS_PREVIEW_MODE && MOCK_COLLEGE_MODULES[collegeId]) {
         setActiveModules(MOCK_COLLEGE_MODULES[collegeId]);
       } else {
         // Fallback default modules so user is never locked out of college capabilities
         setActiveModules(['CORE', 'CLASS', 'ATTENDANCE', 'ADMISSION', 'FEE', 'NOTIFICATION', 'FILES']);
       }
     } catch {
-      if (MOCK_COLLEGE_MODULES[collegeId]) {
+      if (IS_PREVIEW_MODE && MOCK_COLLEGE_MODULES[collegeId]) {
         setActiveModules(MOCK_COLLEGE_MODULES[collegeId]);
       } else {
         setActiveModules(['CORE', 'CLASS', 'ATTENDANCE', 'ADMISSION', 'FEE', 'NOTIFICATION', 'FILES']);

@@ -5,6 +5,7 @@ import { courseService } from '../../services/courseService';
 import { branchService } from '../../services/branchService';
 import { collegeService } from '../../services/collegeService';
 import {
+  IS_PREVIEW_MODE,
   MOCK_COLLEGES,
   MOCK_COURSES,
   MOCK_BRANCHES,
@@ -90,20 +91,20 @@ export const PublicAdmissionApplyPage = () => {
 
   const loadInitialData = async () => {
     // 1. Load Colleges
-    let loadedColleges = MOCK_COLLEGES;
+    let loadedColleges = IS_PREVIEW_MODE ? MOCK_COLLEGES : [];
     try {
       const res = await collegeService.getAllColleges(0, 50);
       const list = res?.colleges?.content || res?.content || (Array.isArray(res) ? res : null);
       if (Array.isArray(list) && list.length > 0) loadedColleges = list;
     } catch {
-      loadedColleges = MOCK_COLLEGES;
+      loadedColleges = IS_PREVIEW_MODE ? MOCK_COLLEGES : [];
     }
     setColleges(loadedColleges);
 
     // Determine current college
-    const activeCode = routeCollegeCode || formData.collegeCode || 'DIET-DELHI';
+    const activeCode = routeCollegeCode || formData.collegeCode || (IS_PREVIEW_MODE ? 'DIET-DELHI' : '');
     const found =
-      loadedColleges.find((c) => c.collegeCode === activeCode) || loadedColleges[0];
+      loadedColleges.find((c) => c.collegeCode === activeCode) || loadedColleges[0] || null;
     setSelectedCollege(found);
     if (found) {
       setFormData((prev) => ({ ...prev, collegeCode: found.collegeCode }));
@@ -112,17 +113,17 @@ export const PublicAdmissionApplyPage = () => {
     // 2. Load Courses
     try {
       const courseList = await courseService.getCoursesOfMyCollege();
-      setCourses(Array.isArray(courseList) && courseList.length ? courseList : MOCK_COURSES);
+      setCourses(Array.isArray(courseList) && courseList.length ? courseList : (IS_PREVIEW_MODE ? MOCK_COURSES : []));
     } catch {
-      setCourses(MOCK_COURSES);
+      setCourses(IS_PREVIEW_MODE ? MOCK_COURSES : []);
     }
 
     // 3. Load Branches
     try {
       const branchList = await branchService.getBranchesOfMyCollege();
-      setBranches(Array.isArray(branchList) && branchList.length ? branchList : MOCK_BRANCHES);
+      setBranches(Array.isArray(branchList) && branchList.length ? branchList : (IS_PREVIEW_MODE ? MOCK_BRANCHES : []));
     } catch {
-      setBranches(MOCK_BRANCHES);
+      setBranches(IS_PREVIEW_MODE ? MOCK_BRANCHES : []);
     }
   };
 

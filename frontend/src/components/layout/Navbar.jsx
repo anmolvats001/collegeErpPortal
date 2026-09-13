@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import { LogOut, Building2, User, ChevronDown } from 'lucide-react';
 import { Badge } from '../common/Badge';
 import { TenantSelectorModal } from '../common/TenantSelectorModal';
+import { IS_PREVIEW_MODE } from '../../utils/mockData';
 
 export const Navbar = () => {
   const { user, logout, isMainAdmin, isCollegeAdmin, isTeacher, isStudent, switchPreviewRole } = useAuth();
@@ -39,7 +40,7 @@ export const Navbar = () => {
 
       <div className="flex items-center gap-3">
         {/* Role Preview Switcher */}
-        {switchPreviewRole && (
+        {IS_PREVIEW_MODE && switchPreviewRole && (
           <div className="hidden md:flex items-center gap-1 bg-slate-100 p-1 rounded-lg border border-slate-200 text-xs">
             <span className="text-[10px] uppercase font-bold text-slate-400 px-1.5">View As:</span>
             <button

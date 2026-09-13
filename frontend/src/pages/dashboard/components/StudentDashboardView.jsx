@@ -18,53 +18,58 @@ import {
   Sparkles,
 } from 'lucide-react';
 import {
+  IS_PREVIEW_MODE,
   MOCK_STUDENT_ATTENDANCE_SUMMARIES,
   MOCK_ASSIGNMENTS,
 } from '../../../utils/mockData';
 
 export const StudentDashboardView = ({ user, activeCollegeName }) => {
+  const summaries = IS_PREVIEW_MODE ? MOCK_STUDENT_ATTENDANCE_SUMMARIES : [];
+  const assignmentsList = IS_PREVIEW_MODE ? MOCK_ASSIGNMENTS : [];
+  const todaySchedule = IS_PREVIEW_MODE
+    ? [
+        {
+          time: '09:00 - 10:00',
+          subjectCode: 'CS-301',
+          subjectName: 'Data Structures & Algorithms',
+          room: 'LH-102 (Theory)',
+          faculty: 'Prof. Sunita Verma',
+          status: 'COMPLETED',
+        },
+        {
+          time: '10:15 - 11:15',
+          subjectCode: 'CS-302',
+          subjectName: 'Database Management Systems',
+          room: 'CS Lab 3 (Practical)',
+          faculty: 'Dr. Amit Patel',
+          status: 'ONGOING',
+        },
+        {
+          time: '11:30 - 12:30',
+          subjectCode: 'MATH-301',
+          subjectName: 'Discrete Mathematical Structures',
+          room: 'LH-104 (Lecture)',
+          faculty: 'Ramesh Gupta',
+          status: 'UPCOMING',
+        },
+        {
+          time: '14:00 - 15:00',
+          subjectCode: 'CS-303',
+          subjectName: 'Computer Organization & Architecture',
+          room: 'LH-101 (Lecture)',
+          faculty: 'Prof. Sunita Verma',
+          status: 'UPCOMING',
+        },
+      ]
+    : [];
+
   // Turnout calculation
-  const totalLectures = MOCK_STUDENT_ATTENDANCE_SUMMARIES.reduce((acc, s) => acc + s.totalLectures, 0);
-  const attendedLectures = MOCK_STUDENT_ATTENDANCE_SUMMARIES.reduce((acc, s) => acc + s.attendedLectures, 0);
+  const totalLectures = summaries.reduce((acc, s) => acc + (s.totalLectures || 0), 0);
+  const attendedLectures = summaries.reduce((acc, s) => acc + (s.attendedLectures || 0), 0);
   const overallRate = totalLectures > 0 ? ((attendedLectures / totalLectures) * 100).toFixed(1) : 0;
   const isEligible = Number(overallRate) >= 75;
 
-  const defaulterSubjects = MOCK_STUDENT_ATTENDANCE_SUMMARIES.filter((s) => s.attendancePercentage < 75);
-
-  const todaySchedule = [
-    {
-      time: '09:00 - 10:00',
-      subjectCode: 'CS-301',
-      subjectName: 'Data Structures & Algorithms',
-      room: 'LH-102 (Theory)',
-      faculty: 'Prof. Sunita Verma',
-      status: 'COMPLETED',
-    },
-    {
-      time: '10:15 - 11:15',
-      subjectCode: 'CS-302',
-      subjectName: 'Database Management Systems',
-      room: 'CS Lab 3 (Practical)',
-      faculty: 'Dr. Amit Patel',
-      status: 'ONGOING',
-    },
-    {
-      time: '11:30 - 12:30',
-      subjectCode: 'MATH-301',
-      subjectName: 'Discrete Mathematical Structures',
-      room: 'LH-104 (Lecture)',
-      faculty: 'Ramesh Gupta',
-      status: 'UPCOMING',
-    },
-    {
-      time: '14:00 - 15:00',
-      subjectCode: 'CS-303',
-      subjectName: 'Computer Organization & Architecture',
-      room: 'LH-101 (Lecture)',
-      faculty: 'Prof. Sunita Verma',
-      status: 'UPCOMING',
-    },
-  ];
+  const defaulterSubjects = summaries.filter((s) => (s.attendancePercentage || 0) < 75);
 
   return (
     <div className="space-y-6">
@@ -190,51 +195,57 @@ export const StudentDashboardView = ({ user, activeCollegeName }) => {
             title="Today's Lecture Schedule"
             subtitle="Real-time class schedule & attendance status"
           >
-            <div className="divide-y divide-slate-100">
-              {todaySchedule.map((item, idx) => (
-                <div key={idx} className="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                  <div className="flex items-start gap-3">
-                    <div className="w-9 h-9 rounded bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-800 shrink-0 font-mono text-xs font-bold">
-                      {idx + 1}
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold text-slate-900 text-xs">{item.subjectCode}</span>
-                        <span className="text-slate-400">•</span>
-                        <span className="text-xs text-slate-700 font-medium">{item.subjectName}</span>
+            {todaySchedule.length === 0 ? (
+              <div className="py-8 text-center text-xs text-slate-500">
+                No lectures scheduled for today.
+              </div>
+            ) : (
+              <div className="divide-y divide-slate-100">
+                {todaySchedule.map((item, idx) => (
+                  <div key={idx} className="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div className="flex items-start gap-3">
+                      <div className="w-9 h-9 rounded bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-800 shrink-0 font-mono text-xs font-bold">
+                        {idx + 1}
                       </div>
-                      <div className="flex items-center gap-3 text-[11px] text-slate-500 mt-1">
-                        <span className="flex items-center gap-1">
-                          <Clock size={12} /> {item.time}
-                        </span>
-                        <span>•</span>
-                        <span>{item.room}</span>
-                        <span>•</span>
-                        <span>{item.faculty}</span>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-slate-900 text-xs">{item.subjectCode}</span>
+                          <span className="text-slate-400">•</span>
+                          <span className="text-xs text-slate-700 font-medium">{item.subjectName}</span>
+                        </div>
+                        <div className="flex items-center gap-3 text-[11px] text-slate-500 mt-1">
+                          <span className="flex items-center gap-1">
+                            <Clock size={12} /> {item.time}
+                          </span>
+                          <span>•</span>
+                          <span>{item.room}</span>
+                          <span>•</span>
+                          <span>{item.faculty}</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  <div className="shrink-0 self-start sm:self-auto">
-                    {item.status === 'COMPLETED' && (
-                      <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">
-                        <CheckCircle2 size={12} /> Present
-                      </span>
-                    )}
-                    {item.status === 'ONGOING' && (
-                      <span className="inline-flex items-center gap-1 text-[11px] font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded animate-pulse">
-                        <Clock size={12} /> In Progress
-                      </span>
-                    )}
-                    {item.status === 'UPCOMING' && (
-                      <span className="inline-flex items-center gap-1 text-[11px] font-medium text-slate-500 bg-slate-100 px-2 py-0.5 rounded">
-                        Upcoming
-                      </span>
-                    )}
+                    <div className="shrink-0 self-start sm:self-auto">
+                      {item.status === 'COMPLETED' && (
+                        <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">
+                          <CheckCircle2 size={12} /> Present
+                        </span>
+                      )}
+                      {item.status === 'ONGOING' && (
+                        <span className="inline-flex items-center gap-1 text-[11px] font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded animate-pulse">
+                          <Clock size={12} /> In Progress
+                        </span>
+                      )}
+                      {item.status === 'UPCOMING' && (
+                        <span className="inline-flex items-center gap-1 text-[11px] font-medium text-slate-500 bg-slate-100 px-2 py-0.5 rounded">
+                          Upcoming
+                        </span>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </Card>
 
           {/* Quick Subject Attendance Summary */}
@@ -242,34 +253,40 @@ export const StudentDashboardView = ({ user, activeCollegeName }) => {
             title="My Course Turnout Summary"
             subtitle="Individual breakdown per enrolled course subject"
           >
-            <div className="space-y-3">
-              {MOCK_STUDENT_ATTENDANCE_SUMMARIES.map((sub) => {
-                const isSubEligible = sub.attendancePercentage >= 75;
-                return (
-                  <div key={sub.subjectCode} className="p-3 border border-slate-200 rounded bg-slate-50/50">
-                    <div className="flex items-center justify-between text-xs mb-1">
-                      <div className="font-bold text-slate-800">
-                        {sub.subjectCode} - {sub.subjectName}
+            {summaries.length === 0 ? (
+              <div className="py-8 text-center text-xs text-slate-500">
+                No course turnout records available yet for this semester.
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {summaries.map((sub) => {
+                  const isSubEligible = sub.attendancePercentage >= 75;
+                  return (
+                    <div key={sub.subjectCode} className="p-3 border border-slate-200 rounded bg-slate-50/50">
+                      <div className="flex items-center justify-between text-xs mb-1">
+                        <div className="font-bold text-slate-800">
+                          {sub.subjectCode} - {sub.subjectName}
+                        </div>
+                        <div className="font-mono font-bold">
+                          <span className={isSubEligible ? 'text-emerald-700' : 'text-amber-600'}>
+                            {sub.attendancePercentage}%
+                          </span>
+                          <span className="text-slate-400 font-normal text-[11px] ml-1">
+                            ({sub.attendedLectures}/{sub.totalLectures} lectures)
+                          </span>
+                        </div>
                       </div>
-                      <div className="font-mono font-bold">
-                        <span className={isSubEligible ? 'text-emerald-700' : 'text-amber-600'}>
-                          {sub.attendancePercentage}%
-                        </span>
-                        <span className="text-slate-400 font-normal text-[11px] ml-1">
-                          ({sub.attendedLectures}/{sub.totalLectures} lectures)
-                        </span>
+                      <div className="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden">
+                        <div
+                          className={`h-1.5 rounded-full ${isSubEligible ? 'bg-emerald-500' : 'bg-amber-500'}`}
+                          style={{ width: `${Math.min(sub.attendancePercentage, 100)}%` }}
+                        />
                       </div>
                     </div>
-                    <div className="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden">
-                      <div
-                        className={`h-1.5 rounded-full ${isSubEligible ? 'bg-emerald-500' : 'bg-amber-500'}`}
-                        style={{ width: `${Math.min(sub.attendancePercentage, 100)}%` }}
-                      />
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+                  );
+                })}
+              </div>
+            )}
           </Card>
         </div>
 
@@ -280,8 +297,13 @@ export const StudentDashboardView = ({ user, activeCollegeName }) => {
             title="Upcoming Submissions"
             subtitle="Assignment homework due dates"
           >
-            <div className="space-y-3">
-              {MOCK_ASSIGNMENTS.slice(0, 3).map((asg) => (
+            {assignmentsList.length === 0 ? (
+              <div className="py-6 text-center text-xs text-slate-500">
+                No pending assignment submissions.
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {assignmentsList.slice(0, 3).map((asg) => (
                 <div
                   key={asg.assignmentId}
                   className="p-3 border border-slate-200 rounded hover:border-slate-300 transition bg-white"
@@ -310,6 +332,7 @@ export const StudentDashboardView = ({ user, activeCollegeName }) => {
                 </div>
               ))}
             </div>
+            )}
           </Card>
 
           {/* Fee & Accounts Status */}

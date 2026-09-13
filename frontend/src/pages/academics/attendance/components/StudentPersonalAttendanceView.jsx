@@ -17,13 +17,14 @@ import {
   ShieldAlert,
 } from 'lucide-react';
 import {
+  IS_PREVIEW_MODE,
   MOCK_STUDENT_ATTENDANCE_SUMMARIES,
   MOCK_STUDENT_ATTENDANCE_LOG,
 } from '../../../../utils/mockData';
 
 export const StudentPersonalAttendanceView = ({ user }) => {
-  const [summaries, setSummaries] = useState(MOCK_STUDENT_ATTENDANCE_SUMMARIES);
-  const [logs, setLogs] = useState(MOCK_STUDENT_ATTENDANCE_LOG);
+  const [summaries, setSummaries] = useState(() => (IS_PREVIEW_MODE ? MOCK_STUDENT_ATTENDANCE_SUMMARIES : []));
+  const [logs, setLogs] = useState(() => (IS_PREVIEW_MODE ? MOCK_STUDENT_ATTENDANCE_LOG : []));
   const [isLoading, setIsLoading] = useState(false);
   const [selectedSubject, setSelectedSubject] = useState('ALL');
   const [statusFilter, setStatusFilter] = useState('ALL');

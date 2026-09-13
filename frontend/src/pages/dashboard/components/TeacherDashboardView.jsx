@@ -18,50 +18,56 @@ import {
   ChevronRight,
 } from 'lucide-react';
 import {
+  IS_PREVIEW_MODE,
   MOCK_TEACHER_SUBJECTS,
   MOCK_ATTENDANCE_SESSIONS,
   MOCK_ASSIGNMENTS,
 } from '../../../utils/mockData';
 
 export const TeacherDashboardView = ({ user, activeCollegeName }) => {
-  const teacherLectures = [
-    {
-      sessionId: 'att-sess-001',
-      subjectCode: 'CS-301',
-      subjectName: 'Data Structures & Algorithms',
-      className: 'CSE-3A',
-      section: 'A',
-      time: '09:00 - 10:00',
-      room: 'LH-102',
-      status: 'RECORDED',
-      totalStudents: 32,
-      presentCount: 29,
-    },
-    {
-      sessionId: 'att-sess-102',
-      subjectCode: 'CS-301',
-      subjectName: 'Data Structures Lab (Batch 1)',
-      className: 'CSE-3A',
-      section: 'A',
-      time: '11:30 - 13:30',
-      room: 'Computer Lab 2',
-      status: 'PENDING',
-      totalStudents: 32,
-      presentCount: 0,
-    },
-    {
-      sessionId: 'att-sess-103',
-      subjectCode: 'CS-303',
-      subjectName: 'Computer Organization & Architecture',
-      className: 'CSE-3A',
-      section: 'A',
-      time: '14:00 - 15:00',
-      room: 'LH-101',
-      status: 'UPCOMING',
-      totalStudents: 32,
-      presentCount: 0,
-    },
-  ];
+  const teacherLectures = IS_PREVIEW_MODE
+    ? [
+        {
+          sessionId: 'att-sess-001',
+          subjectCode: 'CS-301',
+          subjectName: 'Data Structures & Algorithms',
+          className: 'CSE-3A',
+          section: 'A',
+          time: '09:00 - 10:00',
+          room: 'LH-102',
+          status: 'RECORDED',
+          totalStudents: 32,
+          presentCount: 29,
+        },
+        {
+          sessionId: 'att-sess-102',
+          subjectCode: 'CS-301',
+          subjectName: 'Data Structures Lab (Batch 1)',
+          className: 'CSE-3A',
+          section: 'A',
+          time: '11:30 - 13:30',
+          room: 'Computer Lab 2',
+          status: 'PENDING',
+          totalStudents: 32,
+          presentCount: 0,
+        },
+        {
+          sessionId: 'att-sess-103',
+          subjectCode: 'CS-303',
+          subjectName: 'Computer Organization & Architecture',
+          className: 'CSE-3A',
+          section: 'A',
+          time: '14:00 - 15:00',
+          room: 'LH-101',
+          status: 'UPCOMING',
+          totalStudents: 32,
+          presentCount: 0,
+        },
+      ]
+    : [];
+
+  const assignedSubjects = IS_PREVIEW_MODE ? MOCK_TEACHER_SUBJECTS.slice(0, 2) : [];
+  const gradingTasks = IS_PREVIEW_MODE ? MOCK_ASSIGNMENTS.slice(0, 2) : [];
 
   return (
     <div className="space-y-6">
@@ -158,52 +164,58 @@ export const TeacherDashboardView = ({ user, activeCollegeName }) => {
             title="Today's Lecture Schedule & Attendance Registers"
             subtitle="Record student roll calls and session turnout"
           >
-            <div className="divide-y divide-slate-100">
-              {teacherLectures.map((lec) => (
-                <div key={lec.sessionId} className="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="font-bold text-slate-900 text-xs">{lec.subjectCode}</span>
-                      <span className="text-slate-400">•</span>
-                      <span className="text-xs font-semibold text-slate-700">{lec.subjectName}</span>
-                    </div>
-                    <div className="flex items-center gap-3 text-[11px] text-slate-500 mt-1">
-                      <span className="font-bold text-blue-800">{lec.className}</span>
-                      <span>•</span>
-                      <span className="flex items-center gap-1">
-                        <Clock size={12} /> {lec.time}
-                      </span>
-                      <span>•</span>
-                      <span>{lec.room}</span>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-2 self-start sm:self-auto">
-                    {lec.status === 'RECORDED' ? (
+            {teacherLectures.length === 0 ? (
+              <div className="py-8 text-center text-xs text-slate-500">
+                No teaching lectures scheduled for today.
+              </div>
+            ) : (
+              <div className="divide-y divide-slate-100">
+                {teacherLectures.map((lec) => (
+                  <div key={lec.sessionId} className="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div>
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">
-                          ✓ {lec.presentCount}/{lec.totalStudents} Present
+                        <span className="font-bold text-slate-900 text-xs">{lec.subjectCode}</span>
+                        <span className="text-slate-400">•</span>
+                        <span className="text-xs font-semibold text-slate-700">{lec.subjectName}</span>
+                      </div>
+                      <div className="flex items-center gap-3 text-[11px] text-slate-500 mt-1">
+                        <span className="font-bold text-blue-800">{lec.className}</span>
+                        <span>•</span>
+                        <span className="flex items-center gap-1">
+                          <Clock size={12} /> {lec.time}
                         </span>
+                        <span>•</span>
+                        <span>{lec.room}</span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 self-start sm:self-auto">
+                      {lec.status === 'RECORDED' ? (
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">
+                            ✓ {lec.presentCount}/{lec.totalStudents} Present
+                          </span>
+                          <Link
+                            to="/attendance"
+                            className="text-xs font-medium text-blue-700 hover:underline"
+                          >
+                            View Sheet
+                          </Link>
+                        </div>
+                      ) : (
                         <Link
                           to="/attendance"
-                          className="text-xs font-medium text-blue-700 hover:underline"
+                          className="inline-flex items-center gap-1 text-xs font-bold text-white bg-blue-800 hover:bg-blue-900 px-3 py-1.5 rounded transition shadow-xs"
                         >
-                          View Sheet
+                          <CalendarCheck size={13} />
+                          <span>Take Roll Call</span>
                         </Link>
-                      </div>
-                    ) : (
-                      <Link
-                        to="/attendance"
-                        className="inline-flex items-center gap-1 text-xs font-bold text-white bg-blue-800 hover:bg-blue-900 px-3 py-1.5 rounded transition shadow-xs"
-                      >
-                        <CalendarCheck size={13} />
-                        <span>Take Roll Call</span>
-                      </Link>
-                    )}
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </Card>
 
           {/* Assigned Teaching Courses */}
@@ -211,25 +223,31 @@ export const TeacherDashboardView = ({ user, activeCollegeName }) => {
             title="My Allocated Courses & Subjects"
             subtitle="Teaching subjects assigned by department head"
           >
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {MOCK_TEACHER_SUBJECTS.slice(0, 2).map((ts) => (
-                <div key={ts.teacherSubjectId} className="p-3 border border-slate-200 rounded bg-slate-50">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-mono font-bold text-blue-800 bg-blue-50 px-2 py-0.5 rounded">
-                      {ts.subjectCode}
-                    </span>
-                    <Badge variant="neutral">{ts.className}</Badge>
+            {assignedSubjects.length === 0 ? (
+              <div className="py-6 text-center text-xs text-slate-500">
+                No teaching subjects assigned yet for this academic year.
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {assignedSubjects.map((ts) => (
+                  <div key={ts.teacherSubjectId} className="p-3 border border-slate-200 rounded bg-slate-50">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-mono font-bold text-blue-800 bg-blue-50 px-2 py-0.5 rounded">
+                        {ts.subjectCode}
+                      </span>
+                      <Badge variant="neutral">{ts.className}</Badge>
+                    </div>
+                    <h4 className="text-xs font-bold text-slate-900 mt-1.5">{ts.subjectName}</h4>
+                    <div className="flex items-center justify-between text-[11px] text-slate-500 mt-2 pt-2 border-t border-slate-200">
+                      <span>Semester {ts.semester}</span>
+                      <Link to="/attendance" className="text-blue-700 font-semibold hover:underline">
+                        Attendance Log →
+                      </Link>
+                    </div>
                   </div>
-                  <h4 className="text-xs font-bold text-slate-900 mt-1.5">{ts.subjectName}</h4>
-                  <div className="flex items-center justify-between text-[11px] text-slate-500 mt-2 pt-2 border-t border-slate-200">
-                    <span>Semester {ts.semester}</span>
-                    <Link to="/attendance" className="text-blue-700 font-semibold hover:underline">
-                      Attendance Log →
-                    </Link>
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </Card>
         </div>
 
@@ -240,33 +258,39 @@ export const TeacherDashboardView = ({ user, activeCollegeName }) => {
             title="Grading Tasks"
             subtitle="Student submissions waiting for review"
           >
-            <div className="space-y-3">
-              {MOCK_ASSIGNMENTS.slice(0, 2).map((asg) => (
-                <div key={asg.assignmentId} className="p-3 border border-slate-200 rounded bg-white">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-mono font-bold text-slate-700 bg-slate-100 px-1.5 py-0.5 rounded">
-                      {asg.className}
-                    </span>
-                    <span className="text-[11px] font-bold text-amber-600">
-                      {asg.totalSubmissions - asg.gradedCount} Unchecked
-                    </span>
+            {gradingTasks.length === 0 ? (
+              <div className="py-6 text-center text-xs text-slate-500">
+                No pending assignment grading tasks.
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {gradingTasks.map((asg) => (
+                  <div key={asg.assignmentId} className="p-3 border border-slate-200 rounded bg-white">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-mono font-bold text-slate-700 bg-slate-100 px-1.5 py-0.5 rounded">
+                        {asg.className}
+                      </span>
+                      <span className="text-[11px] font-bold text-amber-600">
+                        {asg.totalSubmissions - asg.gradedCount} Unchecked
+                      </span>
+                    </div>
+                    <h5 className="text-xs font-bold text-slate-900 mt-1 line-clamp-1">
+                      {asg.assignmentName}
+                    </h5>
+                    <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-100 text-[11px]">
+                      <span className="text-slate-500">{asg.gradedCount}/{asg.totalSubmissions} graded</span>
+                      <Link
+                        to="/assignments"
+                        className="text-xs font-bold text-blue-700 hover:text-blue-800 inline-flex items-center gap-1"
+                      >
+                        <span>Grade Now</span>
+                        <ArrowRight size={11} />
+                      </Link>
+                    </div>
                   </div>
-                  <h5 className="text-xs font-bold text-slate-900 mt-1 line-clamp-1">
-                    {asg.assignmentName}
-                  </h5>
-                  <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-100 text-[11px]">
-                    <span className="text-slate-500">{asg.gradedCount}/{asg.totalSubmissions} graded</span>
-                    <Link
-                      to="/assignments"
-                      className="text-xs font-bold text-blue-700 hover:text-blue-800 inline-flex items-center gap-1"
-                    >
-                      <span>Grade Now</span>
-                      <ArrowRight size={11} />
-                    </Link>
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </Card>
 
           {/* Quick Actions Shortcuts */}
