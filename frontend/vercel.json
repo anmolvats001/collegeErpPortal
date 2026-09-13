@@ -2,15 +2,15 @@
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "https://d67cff83aa6b92.lhr.life/api/$1"
+      "destination": "https://seo-jpeg-forest-televisions.trycloudflare.com/api/$1"
     },
     {
       "source": "/auth/(.*)",
-      "destination": "https://d67cff83aa6b92.lhr.life/auth/$1"
+      "destination": "https://seo-jpeg-forest-televisions.trycloudflare.com/auth/$1"
     },
     {
       "source": "/public/(.*)",
-      "destination": "https://d67cff83aa6b92.lhr.life/public/$1"
+      "destination": "https://seo-jpeg-forest-televisions.trycloudflare.com/public/$1"
     },
     {
       "source": "/(.*)",
