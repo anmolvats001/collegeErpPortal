@@ -28,6 +28,7 @@ import { AdmissionManagementPage } from './pages/admissions/AdmissionManagementP
 import { PublicAdmissionApplyPage } from './pages/admissions/PublicAdmissionApplyPage';
 import { FeeManagementPage } from './pages/fees/FeeManagementPage';
 import { ModuleGuard } from './components/auth/ModuleGuard';
+import { RoleGuard } from './components/auth/RoleGuard';
 import { ErrorBoundary } from './components/common/ErrorBoundary';
 
 export const App = () => {
@@ -55,8 +56,22 @@ export const App = () => {
                 <Route path="users" element={<UserManagementPage />} />
                 <Route path="profile" element={<UserProfilePage />} />
                 <Route path="roles" element={<RoleManagementPage />} />
-                <Route path="colleges" element={<CollegeManagementPage />} />
-                <Route path="modules" element={<ModuleManagementPage />} />
+                <Route
+                  path="colleges"
+                  element={
+                    <RoleGuard allowedRoles={['ROLE_MAIN_ADMIN']}>
+                      <CollegeManagementPage />
+                    </RoleGuard>
+                  }
+                />
+                <Route
+                  path="modules"
+                  element={
+                    <RoleGuard allowedRoles={['ROLE_MAIN_ADMIN']}>
+                      <ModuleManagementPage />
+                    </RoleGuard>
+                  }
+                />
                 <Route
                   path="academics"
                   element={

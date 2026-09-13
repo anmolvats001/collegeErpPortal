@@ -21,6 +21,7 @@ import {
   Filter,
   Check,
 } from 'lucide-react';
+import { useAuth } from '../../hooks/useAuth';
 import {
   IS_PREVIEW_MODE,
   MOCK_SYSTEM_MODULES,
@@ -29,6 +30,7 @@ import {
 } from '../../utils/mockData';
 
 export const ModuleManagementPage = () => {
+  const { isMainAdmin } = useAuth();
   const [systemModules, setSystemModules] = useState(
     IS_PREVIEW_MODE ? MOCK_SYSTEM_MODULES : []
   );
@@ -253,17 +255,19 @@ export const ModuleManagementPage = () => {
           >
             Refresh
           </Button>
-          <Button
-            variant="primary"
-            icon={Plus}
-            onClick={() => {
-              setNewModuleForm({ moduleCode: '', moduleName: '', moduleDescription: '' });
-              setIsNewModuleModalOpen(true);
-            }}
-            className="text-xs"
-          >
-            Register Module
-          </Button>
+          {isMainAdmin && (
+            <Button
+              variant="primary"
+              icon={Plus}
+              onClick={() => {
+                setNewModuleForm({ moduleCode: '', moduleName: '', moduleDescription: '' });
+                setIsNewModuleModalOpen(true);
+              }}
+              className="text-xs"
+            >
+              Register Module
+            </Button>
+          )}
         </div>
       </div>
 

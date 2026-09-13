@@ -56,7 +56,7 @@ export const Sidebar = () => {
       label: 'Module Registry',
       path: '/modules',
       icon: Layers,
-      show: isMainAdmin || isCollegeAdmin || hasAnyPermission(['VIEW_SETTINGS', 'UPDATE_SETTINGS']),
+      show: isMainAdmin,
     },
     {
       label: 'My Profile',
