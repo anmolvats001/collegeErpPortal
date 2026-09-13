@@ -1,6 +1,18 @@
 {
   "rewrites": [
     {
+      "source": "/api/(.*)",
+      "destination": "https://d67cff83aa6b92.lhr.life/api/$1"
+    },
+    {
+      "source": "/auth/(.*)",
+      "destination": "https://d67cff83aa6b92.lhr.life/auth/$1"
+    },
+    {
+      "source": "/public/(.*)",
+      "destination": "https://d67cff83aa6b92.lhr.life/public/$1"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
