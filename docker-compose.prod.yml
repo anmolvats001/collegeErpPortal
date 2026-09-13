@@ -1,0 +1,180 @@
+services:
+  # Infrastructure
+  mysql:
+    image: mysql:8.0
+    container_name: college-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./mysql-init/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7.2-alpine
+    container_name: college-redis
+    restart: always
+    ports:
+      - "6379:6379"
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    container_name: college-zookeeper
+    restart: always
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: college-kafka
+    restart: always
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+  # Backend Microservices
+  core-service:
+    build:
+      context: ./backend/core-service
+      dockerfile: Dockerfile
+    container_name: core-service
+    restart: always
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      kafka:
+        condition: service_started
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/coredb?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+
+  class-service:
+    build:
+      context: ./backend/ClassService/ClassService
+      dockerfile: Dockerfile
+    container_name: class-service
+    restart: always
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/classdb?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      SPRING_DATA_REDIS_HOST: redis
+
+  admission-service:
+    build:
+      context: ./backend/AdmissionService/AdmissionService
+      dockerfile: Dockerfile
+    container_name: admission-service
+    restart: always
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/admissiondb?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+
+  fee-service:
+    build:
+      context: ./backend/FeeService
+      dockerfile: Dockerfile
+    container_name: fee-service
+    restart: always
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/feedb?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+
+  notification-service:
+    build:
+      context: ./backend/NotificationService
+      dockerfile: Dockerfile
+    container_name: notification-service
+    restart: always
+    depends_on:
+      kafka:
+        condition: service_started
+    environment:
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      MAIL_USERNAME: campusconnect743@gmail.com
+      MAIL_PASSWORD: aadjhphtjgiwases
+
+  cloudinary-service:
+    build:
+      context: ./backend/CloudinaryService
+      dockerfile: Dockerfile
+    container_name: cloudinary-service
+    restart: always
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/clouddb?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+
+  # API Gateway
+  api-gateway:
+    build:
+      context: ./backend/ApiGateway/ApiGateway
+      dockerfile: Dockerfile
+    container_name: api-gateway
+    restart: always
+    depends_on:
+      - core-service
+      - class-service
+      - admission-service
+      - fee-service
+      - notification-service
+      - cloudinary-service
+    ports:
+      - "8080:8080"
+    environment:
+      SERVICES_CORE_URL: http://core-service:8082
+      SERVICES_CLASS_URL: http://class-service:8083
+      SERVICES_ADMISSION_URL: http://admission-service:8084
+      SERVICES_FEE_URL: http://fee-service:8085
+      SERVICES_NOTIFICATION_URL: http://notification-service:8086
+      SERVICES_CLOUDINARY_URL: http://cloudinary-service:8087
+
+  # Frontend Single-Page Application & Web Proxy
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: college-frontend
+    restart: always
+    depends_on:
+      - api-gateway
+    ports:
+      - "80:80"
+
+volumes:
+  mysql_data:
